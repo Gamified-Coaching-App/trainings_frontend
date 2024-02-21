@@ -10,7 +10,7 @@ const dynamoDbClient = new AWS.DynamoDB.DocumentClient({ service: dynamoDB });
 export const handler = async (event) => {
     try {
         // Retrieve the JWT token from the Authorization header and decode
-        const token = event.headers.Authorization || event.headers.authorization;;
+        const token = event.headers.Authorization.split(' ')[1]
         const decoded = jwt.decode(token);
         const user_id = decoded.sub;
         console.log("Decoded JWT user ID:", user_id);
