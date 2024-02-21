@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import jwt from 'jsonwebtoken';
 
-region = 'eu-west-2'
+const region = 'eu-west-2'
 AWS.config.update({ region: region });
 const dynamo_db_client = DynamoDBDocumentClient.from(new DynamoDB({ region }));
 const ddb = new AWS.DynamoDB.DocumentClient();
