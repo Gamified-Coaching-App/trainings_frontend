@@ -34,13 +34,30 @@ export const handler = async (event) => {
         let mondayTime = Math.floor(mondayDate.getTime() / 1000); // Convert back to seconds
     
         // Construct the DynamoDB parameters
+        let returned_items = 'timestamp_local, ' +
+            'active_calories, ' +
+            'activity_type, ' +
+            'average_heart_rate_in_bpm, ' +
+            'average_pace_min_per_km, ' +
+            'average_speed_km_h, ' +
+            'distance_meters_total, ' +
+            'elevation_gain_meters_total, ' + 
+            'max_heart_rate_in_bpm, ' + 
+            'max_pace_min_per_km, ' + 
+            'max_speed_km_h, ' + 
+            'points_gained, ' + 
+            'session_id';
+
         const params = {
             TableName: 'trainings_log',
             KeyConditionExpression: 'user_id = :user_id AND timestamp_local >= :monday_time',
             ExpressionAttributeValues: { 
                 ':user_id': user_id,
-                ':monday_time': mondayTime }
+                ':monday_time': mondayTime
+            },
+            ProjectionExpression: returned_items
         };
+        console.log(params)
     
         // Perform a scan operation to retrieve the items from the table
         const data = await dynamoDbClient.query(params).promise();
