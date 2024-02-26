@@ -68,7 +68,8 @@ export const handler = async (event) => {
             body: JSON.stringify(data.Items),
             headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': token,
+            "Access-Control-Allow-Origin": "*"
             }
         };
     } catch (error) {
