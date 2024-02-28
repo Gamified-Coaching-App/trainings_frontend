@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import jwt from 'jsonwebtoken';
 
-const region = 'eu-west-2'
+const region = 'eu-west-2';
 AWS.config.update({ region: region });
 const dynamoDbClient = new AWS.DynamoDB.DocumentClient();
 
@@ -25,14 +25,16 @@ export const handler = async (event) => {
         const user_id = decoded.sub;
         console.log("Decoded JWT user ID:", user_id);
 
-        // Get seconds since last monday
+        // Get the time for the most recent Monday at 00:00:00
         const now = new Date();
-        let dayOfWeek = now.getDay(); // 0 = Sunday; 1 = Monday etc.
-        let daysSinceLastMonday = (dayOfWeek + 6) % 7
-        let mondayDate = new Date(now.getTime() - daysSinceLastMonday * 24 * 60 * 60 * 1000)
+        let dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        let daysSinceLastMonday = (dayOfWeek + 6) % 7;
+        let mondayDate = new Date(now.getTime() - daysSinceLastMonday * 24 * 60 * 60 * 1000);
         mondayDate.setHours(0, 0, 0, 0); // Set time to 00:00:00
-        let mondayTime = Math.floor(mondayDate.getTime() / 1000); // Convert back to seconds
-    
+
+        // Convert to the specified format: YYYY-MM-DD-HH:MM:SS
+        let mondayTimeFormatted = mondayDate.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+
         // Construct the DynamoDB parameters
         let returned_items = 'timestamp_local, ' +
             'active_calories, ' +
@@ -41,35 +43,36 @@ export const handler = async (event) => {
             'average_pace_min_per_km, ' +
             'average_speed_km_h, ' +
             'distance_meters_total, ' +
-            'elevation_gain_meters_total, ' + 
-            'max_heart_rate_in_bpm, ' + 
-            'max_pace_min_per_km, ' + 
-            'max_speed_km_h, ' + 
-            'points_gained, ' + 
+            'elevation_gain_meters_total, ' +
+            'max_heart_rate_in_bpm, ' +
+            'max_pace_min_per_km, ' +
+            'max_speed_km_h, ' +
+            'points_gained, ' +
             'session_id';
 
         const params = {
             TableName: 'trainings_log',
+            IndexName: 'user_id-timestamp_local-index', // Use the secondary index
             KeyConditionExpression: 'user_id = :user_id AND timestamp_local >= :monday_time',
-            ExpressionAttributeValues: { 
+            ExpressionAttributeValues: {
                 ':user_id': user_id,
-                ':monday_time': mondayTime
+                ':monday_time': mondayTimeFormatted // Use the formatted time
             },
             ProjectionExpression: returned_items
         };
-        console.log(params)
-    
-        // Perform a scan operation to retrieve the items from the table
+        console.log(params);
+
+        // Perform a query operation to retrieve the items from the table
         const data = await dynamoDbClient.query(params).promise();
-    
+
         // Return the retrieved items
         return {
             statusCode: 200,
             body: JSON.stringify(data.Items),
             headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token,
-            "Access-Control-Allow-Origin": "*"
+                'Content-Type': 'application/json',
+                'Authorization': token,
+                "Access-Control-Allow-Origin": "*"
             }
         };
     } catch (error) {
@@ -77,7 +80,7 @@ export const handler = async (event) => {
         return {
             statusCode: error.statusCode || 500,
             body: JSON.stringify({
-            message: error.message || 'An error occurred during the operation.'
+                message: error.message || 'An error occurred during the operation.'
             })
         };
     }
