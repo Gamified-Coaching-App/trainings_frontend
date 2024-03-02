@@ -36,7 +36,7 @@ export const handler = async (event) => {
         let mondayTimeFormatted = mondayDate.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
 
         // Construct the DynamoDB parameters
-        let returned_items = 'timestamp_local, ' +
+        let returned_items = 'session_id, ' +
             'active_calories, ' +
             'activity_type, ' +
             'average_heart_rate_in_bpm, ' +
