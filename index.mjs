@@ -53,7 +53,7 @@ export const handler = async (event) => {
         const params = {
             TableName: 'trainings_log',
             IndexName: 'user_id-timestamp_local-index', // Use the secondary index
-            KeyConditionExpression: 'user_id = :user_id AND session_id >= :monday_time',
+            KeyConditionExpression: 'user_id = :user_id AND timestamp_local >= :monday_time',
             ExpressionAttributeValues: {
                 ':user_id': user_id,
                 ':monday_time': mondayTimeFormatted // Use the formatted time
