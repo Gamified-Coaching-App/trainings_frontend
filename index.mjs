@@ -43,6 +43,7 @@ export const handler = async (event) => {
             'average_pace_min_per_km, ' +
             'average_speed_km_h, ' +
             'distance_meters_total, ' +
+            'duration' + 
             'elevation_gain_meters_total, ' +
             'max_heart_rate_in_bpm, ' +
             'max_pace_min_per_km, ' +
