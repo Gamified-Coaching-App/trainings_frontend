@@ -49,7 +49,8 @@ export const handler = async (event) => {
             'max_pace_min_per_km, ' +
             'max_speed_km_h, ' +
             'points_gained, ' +
-            'timestamp_local';
+            'timestamp_local, ' +
+            'heart_rate';
 
         const params = {
             TableName: 'trainings_log',
