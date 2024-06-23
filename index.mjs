@@ -25,16 +25,15 @@ export const handler = async (event) => {
         const user_id = decoded.sub;
         console.log("Decoded JWT user ID:", user_id);
 
-        // Get the time for the most recent Monday at 00:00:00
-        const now = new Date();
-        let dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        let daysSinceLastMonday = (dayOfWeek + 6) % 7;
-        let mondayDate = new Date(now.getTime() - daysSinceLastMonday * 24 * 60 * 60 * 1000);
-        mondayDate.setHours(0, 0, 0, 0); // Set time to 00:00:00
+        const body = JSON.parse(event.body);
+        const { startDate, endDate } = body;
+        console.log("Start Date:", startDate);
+        console.log("End Date:", endDate);
 
-        // Convert to the specified format: YYYY-MM-DD-HH:MM:SS
-        let mondayTimeFormatted = mondayDate.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
-
+        // Convert startDate and endDate to the specified format: YYYY-MM-DD-HH:MM:SS
+        let startDateFormatted = new Date(startDate).toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+        let endDateFormatted = new Date(endDate).toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+        
         // Construct the DynamoDB parameters
         let returned_items = 'session_id, ' +
             'active_calories, ' +
@@ -55,16 +54,17 @@ export const handler = async (event) => {
         const params = {
             TableName: 'trainings_log',
             IndexName: 'user_id-timestamp_local-index', // Use the secondary index
-            KeyConditionExpression: 'user_id = :user_id AND timestamp_local >= :monday_time',
+            KeyConditionExpression: 'user_id = :user_id AND timestamp_local BETWEEN :start_date AND :end_date',
             ExpressionAttributeValues: {
                 ':user_id': user_id,
-                ':monday_time': mondayTimeFormatted // Use the formatted time
+                ':start_date': startDateFormatted, // Use the formatted start date
+                ':end_date': endDateFormatted // Use the formatted end date
             },
             ProjectionExpression: returned_items,
             ExpressionAttributeNames: {
                 '#duration': 'duration'
             }
-        };
+            };
         console.log(params);
 
         // Perform a query operation to retrieve the items from the table

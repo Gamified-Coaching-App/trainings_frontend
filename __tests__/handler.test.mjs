@@ -46,6 +46,10 @@ describe('handler function', () => {
             headers: {
                 Authorization: 'Bearer mockToken',
             },
+            body: JSON.stringify({
+                startDate: '2023-01-01T00:00:00Z',
+                endDate: '2023-01-07T23:59:59Z',
+            }),
         };
 
         const mockDecodedToken = {
