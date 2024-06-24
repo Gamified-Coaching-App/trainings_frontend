@@ -47,7 +47,7 @@ export const handler = async (event) => {
             'average_pace_min_per_km, ' +
             'average_speed_km_h, ' +
             'distance_meters_total, ' +
-            'duration, ' + 
+            '#duration, ' + 
             'elevation_gain_meters_total, ' +
             'max_heart_rate_in_bpm, ' +
             'max_pace_min_per_km, ' +
@@ -69,6 +69,9 @@ export const handler = async (event) => {
                 ':end_date': endDateFormatted // Use the formatted end date
             },
             ProjectionExpression: returned_items,
+            ExpressionAttributeNames: {
+                '#duration': 'duration' 
+            }
             };
         console.log(params);
 
