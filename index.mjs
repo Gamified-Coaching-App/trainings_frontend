@@ -13,6 +13,11 @@ export const handler = async (event) => {
             console.error("No headers found in the event.");
             return {
                 statusCode: 400,
+                headers: {
+                    "Access-Control-Allow-Origin": "*", // Allow all origins
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET", // Allow specific methods
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization" // Allow specific headers
+                },
                 body: JSON.stringify({ error: "No headers provided in the request." })
             };
         }
@@ -73,17 +78,24 @@ export const handler = async (event) => {
         // Return the retrieved items
         return {
             statusCode: 200,
-            body: JSON.stringify(data.Items),
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token,
-                "Access-Control-Allow-Origin": "*"
-            }
+                "Access-Control-Allow-Origin": "*", // Allow all origins
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET", // Allow specific methods
+                "Access-Control-Allow-Headers": "Content-Type,Authorization" // Allow specific headers
+            },
+            body: JSON.stringify(data.Items)
         };
     } catch (error) {
         console.error('Error:', error);
         return {
             statusCode: error.statusCode || 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*", // Allow all origins
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET", // Allow specific methods
+                "Access-Control-Allow-Headers": "Content-Type,Authorization" // Allow specific headers
+            },
             body: JSON.stringify({
                 message: error.message || 'An error occurred during the operation.'
             })
