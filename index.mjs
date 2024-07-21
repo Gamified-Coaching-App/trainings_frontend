@@ -37,7 +37,9 @@ export const handler = async (event) => {
 
         // Convert startDate and endDate to the specified format: YYYY-MM-DD-HH:MM:SS
         let startDateFormatted = new Date(startDate).toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
-        let endDateFormatted = new Date(endDate).toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+        let endDateFormatted = new Date(endDate)
+        endDate.setHours(23, 59, 59, 999);
+        endDateFormatted = endDateFormatted.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
         
         // Construct the DynamoDB parameters
         let returned_items = 'session_id, ' +
