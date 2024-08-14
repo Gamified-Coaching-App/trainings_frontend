@@ -37,7 +37,7 @@ export const handler = async (event) => {
 
         // Convert startDate and endDate to the specified format: YYYY-MM-DD-HH:MM:SS
         let startDateFormatted = new Date(startDate).toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
-        let endDateFormatted = new Date(endDate)
+        let endDateFormatted = new Date(endDate);
         endDateFormatted.setHours(23, 59, 59, 999);
         endDateFormatted = endDateFormatted.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
         
@@ -74,16 +74,26 @@ export const handler = async (event) => {
             ExpressionAttributeNames: {
                 '#duration': 'duration' 
             }
-            };
-        console.log(params);
+        };
 
-        // Perform a query operation to retrieve the items from the table
-        const data = await dynamoDbClient.query(params).promise();
+        let allItems = [];
+        let data;
 
-        console.log("Training Data retrieved for timestamps:") 
-        data.Items.forEach(item => {
-            console.log(item.timestamp_local);
-        });
+        do {
+            data = await dynamoDbClient.query(params).promise();
+            allItems = allItems.concat(data.Items);
+
+            // Log the retrieved items for debugging
+            data.Items.forEach(item => {
+                console.log("Retrieved item timestamp:", item.timestamp_local);
+            });
+
+            // Update params to start from the last evaluated key
+            params.ExclusiveStartKey = data.LastEvaluatedKey;
+        } while (typeof data.LastEvaluatedKey !== "undefined");
+
+        console.log("Total items retrieved:", allItems.length);
+
         // Return the retrieved items
         return {
             statusCode: 200,
@@ -94,7 +104,7 @@ export const handler = async (event) => {
                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET", // Allow specific methods
                 "Access-Control-Allow-Headers": "Content-Type,Authorization" // Allow specific headers
             },
-            body: JSON.stringify(data.Items)
+            body: JSON.stringify(allItems)
         };
     } catch (error) {
         console.error('Error:', error);
