@@ -80,7 +80,10 @@ export const handler = async (event) => {
         // Perform a query operation to retrieve the items from the table
         const data = await dynamoDbClient.query(params).promise();
 
-        console.log("Training Data retrieved:", data.Items);
+        console.log("Training Data retrieved for timestamps:") 
+        data.Items.forEach(item => {
+            console.log(item.timestamp_local);
+        });
         // Return the retrieved items
         return {
             statusCode: 200,
